@@ -1,0 +1,37 @@
+service: pdf-prototyping
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: dev
+  region: ap-southeast-2
+  environment:
+    BUCKET_NAME: pdf-prototyping
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:ListBucket"
+      Resource: 
+        Fn::Join: 
+          - ""
+          - - "arn:aws:s3:::"
+            - "${self:provider.environment.BUCKET_NAME}"
+    - Effect: "Allow"
+      Action:
+        - "s3:PutObject"
+        - "s3:GetObject"
+      Resource:
+        Fn::Join:
+          - ""
+          - - "arn:aws:s3:::"
+            - "${self:provider.environment.BUCKET_NAME}"
+            - "/*"
+
+package:
+  individually: true
+
+functions:
+  pdf-fill:
+    package:
+      artifact: tmp/pdf-fill.zip
+    handler: index.handler
+    # handler: lambda/pdf-fill/index.handler
